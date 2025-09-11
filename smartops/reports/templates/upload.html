@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartOps Data Input</title>
+    <style>
+        .error { color: red; }
+        .warning { color: orange; }
+    </style>
+</head>
+<body>
+  <h2>Generate Report</h2>
+  
+  {% if messages %}
+    {% for message in messages %}
+      <p class="{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Or connect Google Sheets</h3>
+    <input type="text" name="sheet_url" placeholder="https://docs.google.com/spreadsheets/...">
+
+    <h3>Or connect Jira</h3>
+    <input type="text" name="jira_server" placeholder="https://yourcompany.atlassian.net"><br>
+    <input type="text" name="jira_email" placeholder="Your Jira Email"><br>
+    <input type="password" name="jira_token" placeholder="API Token"><br>
+    <input type="text" name="jira_project" placeholder="Project Key (e.g., SMARTOPS)"><br><br>
+
+    <button type="submit">Generate Report</button>
+  </form>
+  
+  <p><small>Note: CSV files should contain numeric data for chart generation.</small></p>
+</body>
+</html>

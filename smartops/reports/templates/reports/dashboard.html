@@ -1,0 +1,21 @@
+
+<h2>SmartOps Dashboard</h2>
+<button id="genBtn">Generate Report Now</button>
+<ul>
+  {% for r in reports %}
+    <li>
+      <a href="{% url 'report_detail' r.pk %}">{{ r.title }}</a>
+      — {{ r.created_at }}
+    </li>
+  {% empty %}
+    <li>No reports yet.</li>
+  {% endfor %}
+</ul>
+
+<script>
+document.getElementById("genBtn").addEventListener("click", async () => {
+  const res = await fetch("{% url 'manual_generate' %}", {method:"POST", headers:{ "X-CSRFToken": "{{ csrf_token }}" }});
+  alert((await res.json()).status);
+});
+</script>
+

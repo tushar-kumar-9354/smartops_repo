@@ -1,0 +1,25 @@
+
+<h2>{{ report.title }}</h2>
+<p><strong>Summary</strong></p>
+<pre>{{ report.summary }}</pre>
+
+{% if report.chart_path %}
+  <img src="/{{ report.chart_path }}" width="800">
+{% endif %}
+
+<h3>Insights</h3>
+<ul>
+  {% for i in insights %}
+    <li>{{ i.key }} : {{ i.value }} — {{ i.text }}</li>
+  {% empty %}
+    <li>No insights available</li>
+  {% endfor %}
+</ul>
+
+<h3>Agent Logs</h3>
+<pre style="background:#f7f7f7; padding:10px; max-height:300px; overflow:auto;">
+{% for log in logs %}
+[{{ log.created_at }}] {{ log.level }} — {{ log.message }}
+{% endfor %}
+</pre>
+
