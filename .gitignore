@@ -9,7 +9,7 @@ build/
 *.dll
 *.so
 *.dylib
-
+ 
 # Environment files
 .env
 .env.local
@@ -37,8 +37,6 @@ Thumbs.db
 *.temp
 .cache/
 
-.smartops_env
-
 smartops/credentials/credentials.json
 smartops_env/
-smartops_env/
+
