@@ -1,37 +1,417 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" class="light" id="html-root">
 <head>
-    <title>SmartOps Data Input</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartOps upload</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .error { color: red; }
-        .warning { color: orange; }
+        /* Custom animations */
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        
+        /* Custom styles for light/dark mode */
+        :root {
+            --pink-50: #fff1f8;
+            --pink-100: #ffe4f1;
+            --pink-200: #ffc1e0;
+            --pink-300: #ff99cc;
+            --pink-400: #ff66b2;
+            --pink-500: #ff3399;
+            --pink-600: #e60073;
+            --pink-700: #b3005c;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-800: #27272a;
+            --gray-900: #18181b;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--pink-50) 0%, var(--gray-100) 100%);
+            min-height: 100vh;
+            transition: background 0.3s ease;
+        }
+        
+        .dark body {
+            background: var(--white);
+        }
+        
+        .container {
+            background: var(--white);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .dark .container {
+            background: var(--gray-800);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card {
+            background: var(--gray-50);
+            border: 1px solid var(--pink-200);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55), box-shadow 0.4s ease;
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+        }
+        
+        .dark .card {
+            background: var(--gray-700);
+            border: 1px solid var(--pink-300);
+        }
+        
+        .card:hover {
+            transform: perspective(1000px) rotateX(2deg) rotateY(2deg);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header-animation {
+            animation: slideIn 0.8s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+        
+        .btn:hover::after {
+            width: 200px;
+            height: 200px;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.2);
+        }
+        
+        .section-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+            margin-right: 1rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .section-icon:hover {
+            transform: scale(1.2);
+        }
+        
+        .error { 
+            color: #ef4444; 
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .warning { 
+            color: #f59e0b; 
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .info {
+            color: var(--pink-600);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--pink-300);
+            border-radius: 0.75rem;
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--pink-500);
+            box-shadow: 0 0 0 4px rgba(255, 51, 153, 0.2);
+        }
+        
+        .connection-tab {
+            cursor: pointer;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem 0.75rem 0 0;
+            background: var(--gray-100);
+            border: 1px solid var(--pink-200);
+            border-bottom: none;
+            transition: all 0.3s ease;
+        }
+        
+        .connection-tab.active {
+            background: var(--white);
+            color: var(--pink-600);
+            font-weight: 500;
+        }
+        
+        .dark .connection-tab {
+            background: var(--gray-700);
+            border-color: var(--pink-300);
+            color: var(--gray-200);
+        }
+        
+        .dark .connection-tab.active {
+            background: var(--gray-800);
+            color: var(--pink-400);
+        }
+        
+        .connection-content {
+            display: none;
+        }
+        
+        .connection-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
     </style>
 </head>
-<body>
-  <h2>Generate Report</h2>
-  
-  {% if messages %}
-    {% for message in messages %}
-      <p class="{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-  
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
+<body class="min-h-screen p-4 md:p-8 lg:p-12">
+    <div class="container max-w-4xl mx-auto rounded-3xl p-6 md:p-8 lg:p-12 fade-in">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8 md:mb-12 border-b border-pink-200 dark:border-pink-300 pb-6 header-animation">
+            <h1 class="text-3xl md:text-4xl font-bold text-pink-600 dark:text-pink-400 leading-tight">Generate Report</h1>
+            <button id="theme-toggle" class="btn p-3 rounded-full bg-pink-400 dark:bg-pink-600 hover:bg-pink-500 dark:hover:bg-pink-500 transition-colors shadow-lg" aria-label="Toggle theme">
+                <svg id="theme-icon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+            </button>
+        </div>
 
-    <h3>Or connect Google Sheets</h3>
-    <input type="text" name="sheet_url" placeholder="https://docs.google.com/spreadsheets/...">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="mb-6 space-y-3">
+                {% for message in messages %}
+                    <div class="p-4 rounded-xl border {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300{% elif message.tags == 'warning' %}bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300{% else %}bg-pink-50 border-pink-200 text-pink-700 dark:bg-pink-900/20 dark:border-pink-800 dark:text-pink-300{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-    <h3>Or connect Jira</h3>
-    <input type="text" name="jira_server" placeholder="https://yourcompany.atlassian.net"><br>
-    <input type="text" name="jira_email" placeholder="Your Jira Email"><br>
-    <input type="password" name="jira_token" placeholder="API Token"><br>
-    <input type="text" name="jira_project" placeholder="Project Key (e.g., SMARTOPS)"><br><br>
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Connection Type Tabs -->
+            <div class="flex flex-wrap border-b border-pink-200 dark:border-pink-300">
+                <div class="connection-tab active" data-target="file-upload">File Upload</div>
+                <div class="connection-tab" data-target="google-sheets">Google Sheets</div>
+                <div class="connection-tab" data-target="jira">Jira Connection</div>
+            </div>
 
-    <button type="submit">Generate Report</button>
-  </form>
-  
-  <p><small>Note: CSV files should contain numeric data for chart generation.</small></p>
+            <!-- File Upload Section -->
+            <div id="file-upload" class="connection-content active">
+                <div class="card p-6 rounded-2xl">
+                    <div class="flex items-center mb-4">
+                        <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                        </svg>
+                        <h2 class="text-xl font-semibold text-pink-600 dark:text-pink-400">Upload Data File</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        {{ form.as_p }}
+                    </div>
+                    
+                    <div class="mt-6 bg-pink-50 dark:bg-pink-900/20 p-4 rounded-xl">
+                        <p class="text-sm text-pink-700 dark:text-pink-300 flex items-start">
+                            <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>CSV files should contain numeric data for chart generation. Maximum file size: 5MB.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google Sheets Section -->
+            <div id="google-sheets" class="connection-content">
+                <div class="card p-6 rounded-2xl">
+                    <div class="flex items-center mb-4">
+                        <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <h2 class="text-xl font-semibold text-pink-600 dark:text-pink-400">Connect Google Sheets</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Google Sheets URL</label>
+                            <input type="text" name="sheet_url" placeholder="https://docs.google.com/spreadsheets/..." class="form-input dark:bg-gray-700 dark:text-white dark:border-pink-400">
+                            <p class="text-gray-500 dark:text-gray-400 text-xs mt-1">Make sure the sheet is shared with anyone who has the link</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jira Section -->
+            <div id="jira" class="connection-content">
+                <div class="card p-6 rounded-2xl">
+                    <div class="flex items-center mb-4">
+                        <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                        </svg>
+                        <h2 class="text-xl font-semibold text-pink-600 dark:text-pink-400">Connect Jira</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jira Server URL</label>
+                            <input type="text" name="jira_server" placeholder="https://yourcompany.atlassian.net" class="form-input dark:bg-gray-700 dark:text-white dark:border-pink-400">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                            <input type="text" name="jira_email" placeholder="Your Jira Email" class="form-input dark:bg-gray-700 dark:text-white dark:border-pink-400">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Token</label>
+                            <input type="password" name="jira_token" placeholder="API Token" class="form-input dark:bg-gray-700 dark:text-white dark:border-pink-400">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project Key</label>
+                            <input type="text" name="jira_project" placeholder="Project Key (e.g., SMARTOPS)" class="form-input dark:bg-gray-700 dark:text-white dark:border-pink-400">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn px-8 py-4 bg-pink-500 dark:bg-pink-600 text-white rounded-xl hover:bg-pink-600 dark:hover:bg-pink-500 transition-all font-semibold shadow-lg">
+                    Generate Report
+                    <svg class="w-5 h-5 ml-2 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Enhanced theme toggle with smooth transitions
+        const toggleButton = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const html = document.documentElement;
+
+        // Check for saved theme or system preference
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+            themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+        }
+
+        toggleButton.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>';
+            } else {
+                localStorage.setItem('theme', 'light');
+                themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+            }
+        });
+
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.connection-tab');
+            const contents = document.querySelectorAll('.connection-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const target = this.getAttribute('data-target');
+                    
+                    // Update tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update contents
+                    contents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === target) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+            });
+            
+            // Enhance form fields
+            const formInputs = document.querySelectorAll('input, select, textarea');
+            formInputs.forEach(input => {
+                // Add focus classes
+                input.addEventListener('focus', function() {
+                    this.classList.add('ring-2', 'ring-pink-300', 'dark:ring-pink-400');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.classList.remove('ring-2', 'ring-pink-300', 'dark:ring-pink-400');
+                });
+            });
+        });
+    </script>
 </body>
 </html>

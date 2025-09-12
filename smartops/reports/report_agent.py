@@ -84,7 +84,7 @@ Provide a concise summary highlighting key insights, trends, or notable patterns
 
         try:
             response = ollama.chat(
-                model="qwen:0.5b",
+                model="mistral",
                 messages=[{"role": "user", "content": prompt}]
             )
             summary = response["message"]["content"]

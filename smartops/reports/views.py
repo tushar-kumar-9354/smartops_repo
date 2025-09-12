@@ -2,6 +2,7 @@
 # reports/views.py
 import pandas as pd
 import matplotlib
+from sklearn import logger
 matplotlib.use('Agg')  # Add this line
 import matplotlib.pyplot as plt
 import os
@@ -78,7 +79,7 @@ def upload_csv(request):
             # AI Summary
             prompt = f"Summarize the following dataset stats in plain English:\n{stats}"
             try:
-                response = ollama.chat(model="qwen:0.5b", messages=[{"role": "user", "content": prompt}])
+                response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
                 report.summary = response['message']['content']
             except Exception as e:
                 report.summary = f"Summary generation failed: {str(e)}"
@@ -94,29 +95,177 @@ def upload_csv(request):
         form = ReportForm()
 
     return render(request, "upload.html", {"form": form})
+# reports/views.py - UPDATE DASHBOARD VIEW
 @login_required
 def dashboard(request):
-    reports = Report.objects.all()
-    return render(request, "reports/dashboard.html", {"reports": reports})
+    from .models import Report
+    reports = Report.objects.all().order_by("-created_at")[:10]
+    total_reports = Report.objects.count()
+    
+    context = {
+        "reports": reports,
+        "total_reports": total_reports,  # This was missing!
+    }
+    return render(request, "reports/dashboard.html", context)
+
 
 @login_required
 def report_detail(request, pk):
     report = get_object_or_404(Report, pk=pk)
     logs = report.logs.all().order_by("-created_at")[:100]
     insights = report.insights.all()
-    return render(request, "reports/report_detail.html", {"report": report, "logs": logs, "insights": insights})
+    answer = None
+
+    if request.method == "POST":
+        query = request.POST.get("query")
+        if query:
+            contextual_query = f"Report titled '{report.title}': {query}"
+            answer = answer_query(contextual_query)
+
+    context = {
+        "report": report,
+        "logs": logs,
+        "insights": insights,
+        "answer": answer,
+    }
+    return render(request, "reports/report_detail.html", context)
+# reports/views.py
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+from django.contrib import messages
 
 @login_required
 @require_POST
 def manual_generate(request):
-    # This triggers the Celery task or agent run immediately
-    from .tasks import send_weekly_report
-    send_weekly_report.delay()   # immediate async trigger
-    return JsonResponse({"status":"queued"})
-
+    """
+    Trigger manual report generation for the latest report
+    """
+    try:
+        from .tasks import send_weekly_report
+        from .models import Report
+        
+        # Get the latest report
+        latest_report = Report.objects.order_by("-created_at").first()
+        
+        if not latest_report:
+            return JsonResponse({
+                "status": "error", 
+                "message": "No reports available. Please upload a CSV first."
+            }, status=400)
+        
+        if not latest_report.csv_file:
+            return JsonResponse({
+                "status": "error",
+                "message": "Latest report has no CSV file attached."
+            }, status=400)
+        
+        # Trigger task for the specific latest report
+        send_weekly_report.delay(latest_report.id)
+        
+        return JsonResponse({
+            "status": "queued",
+            "message": f"Report generation started for '{latest_report.title}'",
+            "report_id": latest_report.id,
+            "report_title": latest_report.title
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in manual_generate: {e}")
+        return JsonResponse({
+            "status": "error",
+            "message": "Internal server error"
+        }, status=500)
+# reports/views.py - ADD THIS IMPORT
+from django.contrib import messages
+# reports/views.py - ENHANCE THE QUERY VIEW
 @login_required
 @require_POST
 def query_report(request):
-    q = request.POST.get("q")
-    ans = answer_query(q)
-    return JsonResponse({"answer": ans})
+    """
+    Handle report queries with better response handling
+    """
+    try:
+        query = request.POST.get("q", "").strip()
+        
+        if not query:
+            return JsonResponse({"error": "Please enter a question"}, status=400)
+        
+        from .qa import answer_query, get_report_count, get_recent_reports
+        
+        # Handle specific common queries directly for better accuracy
+        query_lower = query.lower()
+        
+        if "how many reports" in query_lower:
+            count = get_report_count()
+            recent_reports = get_recent_reports(5)
+            report_list = "\n".join([f"- {report.title} ({report.created_at.date()})" 
+                                   for report in recent_reports])
+            
+            answer = f"There are {count} reports in total.\n\nMost recent reports:\n{report_list}"
+            
+        elif "list reports" in query_lower or "recent reports" in query_lower:
+            recent_reports = get_recent_reports(10)
+            if "alphabetical" in query_lower or "alphabet" in query_lower:
+                recent_reports = sorted(recent_reports, key=lambda x: x.title.lower())
+            
+            report_list = "\n".join([f"- {report.title} ({report.created_at.date()})" 
+                                   for report in recent_reports])
+            
+            answer = f"Recent reports:\n{report_list}"
+            
+        else:
+            # Use the AI for other queries
+            answer = answer_query(query)
+        
+        return JsonResponse({
+            "answer": answer,
+            "query": query
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in query_report: {e}")
+        return JsonResponse({"error": "Internal server error"}, status=500)
+    
+import os
+import pandas as pd
+from django.http import FileResponse, HttpResponse
+from django.shortcuts import get_object_or_404
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table
+from reportlab.lib.styles import getSampleStyleSheet
+from .models import Report
+
+# CSV Download
+def download_csv(request, pk):
+    report = get_object_or_404(Report, pk=pk)
+    if not report.csv_file:
+        return HttpResponse("No CSV file attached.", status=404)
+    return FileResponse(open(report.csv_file.path, "rb"), as_attachment=True, filename=os.path.basename(report.csv_file.path))
+
+# PDF Download
+def download_pdf(request, pk):
+    report = get_object_or_404(Report, pk=pk)
+
+    pdf_path = f"media/report_{report.id}.pdf"
+    doc = SimpleDocTemplate(pdf_path)
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Title
+    story.append(Paragraph(f"SmartOps Report - {report.title}", styles["Heading1"]))
+    story.append(Spacer(1, 12))
+
+    # Summary
+    story.append(Paragraph("Summary", styles["Heading2"]))
+    story.append(Paragraph(report.summary or "No summary available", styles["Normal"]))
+    story.append(Spacer(1, 12))
+
+    # Chart
+    if report.chart_path and os.path.exists(report.chart_path):
+        story.append(Paragraph("Chart", styles["Heading2"]))
+        from reportlab.platypus import Image
+        story.append(Image(report.chart_path, width=400, height=250))
+        story.append(Spacer(1, 12))
+
+    doc.build(story)
+
+    return FileResponse(open(pdf_path, "rb"), as_attachment=True, filename=os.path.basename(pdf_path))

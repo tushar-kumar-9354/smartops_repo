@@ -9,6 +9,7 @@ class Report(models.Model):
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     summary = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
     chart_path = models.CharField(max_length=600, blank=True)
     csv_file = models.FileField(upload_to="uploads/", null=True, blank=True)
     source_type = models.CharField(max_length=50, choices=[("csv","CSV"),("sheets","Sheets"),("jira","Jira")], default="csv")

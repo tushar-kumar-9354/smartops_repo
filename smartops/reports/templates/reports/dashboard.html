@@ -1,21 +1,379 @@
+<!DOCTYPE html>
+<html lang="en" class="light" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartOps Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom animations */
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #64748b;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* Custom styles for light/dark mode */
+        :root {
+            --pink-50: #fff1f8;
+            --pink-100: #ffe4f1;
+            --pink-200: #ffc1e0;
+            --pink-300: #ff99cc;
+            --pink-400: #ff66b2;
+            --pink-500: #ff3399;
+            --pink-600: #e60073;
+            --pink-700: #b3005c;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f4f4f5;
+            --gray-200: #e4e4e7;
+            --gray-300: #d4d4d8;
+            --gray-400: #a1a1aa;
+            --gray-500: #71717a;
+            --gray-600: #52525b;
+            --gray-700: #3f3f46;
+            --gray-800: #27272a;
+            --gray-900: #18181b;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--pink-50) 0%, var(--gray-100) 100%);
+            min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .dark body {
+            background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+            color: var(--gray-200);
+        }
+        .container {
+            background: var(--white);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .dark .container {
+            background: var(--gray-800);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .query-box {
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+        .dark .query-box {
+            background: var(--gray-800);
+        }
+        .recent-reports {
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+        .dark .recent-reports {
+            background: var(--gray-800);
+        }
+        .report-item {
+            transition: all 0.3s ease;
+        }
+        .error {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .dark .error {
+            color: #f87171;
+        }
+        .warning {
+            color: #f59e0b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .dark .warning {
+            color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 lg:p-12 transition-colors duration-300">
+    <div class="container max-w-7xl mx-auto rounded-3xl p-6 md:p-8 lg:p-12 fade-in">
+        <!-- Header -->
+        <header class="mb-8 flex justify-between items-center border-b border-pink-200 dark:border-pink-300 pb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-pink-600 dark:text-pink-400 flex items-center gap-2">
+                <svg class="w-8 h-8 text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10" />
+                </svg>
+                SmartOps Reporting Dashboard
+            </h1>
+            <button id="theme-toggle" class="p-3 rounded-full bg-pink-400 dark:bg-pink-600 hover:bg-pink-500 dark:hover:bg-pink-500 transition-colors shadow-lg" aria-label="Toggle theme">
+                <svg id="theme-icon" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </button>
+        </header>
 
-<h2>SmartOps Dashboard</h2>
-<button id="genBtn">Generate Report Now</button>
-<ul>
-  {% for r in reports %}
-    <li>
-      <a href="{% url 'report_detail' r.pk %}">{{ r.title }}</a>
-      — {{ r.created_at }}
-    </li>
-  {% empty %}
-    <li>No reports yet.</li>
-  {% endfor %}
-</ul>
+        <!-- Action Buttons -->
+        <div class="action-buttons flex flex-wrap gap-4 mb-8 animate-slide-in">
+            <a href="{% url 'upload_csv' %}" 
+               class="inline-flex items-center px-6 py-3 bg-pink-500 dark:bg-pink-400 text-white font-medium rounded-lg hover:bg-pink-600 dark:hover:bg-pink-500 transition-colors duration-200 shadow-md">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                Upload New Data
+            </a>
+        </div>
 
-<script>
-document.getElementById("genBtn").addEventListener("click", async () => {
-  const res = await fetch("{% url 'manual_generate' %}", {method:"POST", headers:{ "X-CSRFToken": "{{ csrf_token }}" }});
-  alert((await res.json()).status);
-});
-</script>
+        <!-- Status Message -->
+        <div id="status-message" 
+             class="hidden p-4 rounded-lg mb-8 transition-all duration-300 animate-slide-in"
+             role="alert">
+        </div>
 
+        <!-- Query Box -->
+        <div class="query-box p-6 rounded-lg shadow-lg mb-8 animate-slide-in">
+            <h2 class="text-xl font-semibold text-pink-600 dark:text-pink-400 mb-4">Ask Your Reports</h2>
+            <form id="query-form" class="flex flex-col md:flex-row gap-4">
+                {% csrf_token %}
+                <input type="text" name="q" 
+                       class="flex-1 px-4 py-3 border border-pink-300 dark:border-pink-400 rounded-lg focus:ring-2 focus:ring-pink-500 dark:focus:ring-pink-400 focus:border-pink-500 dark:focus:border-pink-400 outline-none bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                       placeholder="Example: 'How many reports are there?' or 'Show me recent reports in alphabetical order'"
+                       required>
+                <button type="submit" 
+                        class="px-6 py-3 bg-pink-500 dark:bg-pink-400 text-white font-medium rounded-lg hover:bg-pink-600 dark:hover:bg-pink-500 transition-colors duration-200">
+                        Ask
+                </button>
+            </form>
+            <div class="answer-box mt-6 p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg" id="answer-container">
+                <div id="answer-content" class="text-gray-600 dark:text-gray-300">
+                    Ask a question about your reports. Try: 
+                    "How many reports are there?", 
+                    "List recent reports alphabetically", 
+                    "What insights are in the latest report?"
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="recent-reports p-6 rounded-lg shadow-lg animate-slide-in">
+            <h2 class="text-xl font-semibold text-pink-600 dark:text-pink-400 mb-4">
+                Recent Reports ({{ total_reports }} total)
+            </h2>
+            <ul class="report-list space-y-3 max-h-96 overflow-y-auto">
+                {% for report in reports %}
+                <li class="report-item p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+                    <a href="{% url 'report_detail' report.pk %}" 
+                       class="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300 font-medium">
+                        {{ report.title }}
+                    </a>
+                    <span class="text-gray-500 dark:text-gray-400 text-sm">
+                        - {{ report.created_at|date:"M d, Y" }}
+                        {% if report.insights.all %} ({{ report.insights.all.count }} insights){% endif %}
+                    </span>
+                </li>
+                {% empty %}
+                <li class="report-item p-3 text-gray-500 dark:text-gray-400">
+                    No reports yet. 
+                    <a href="{% url 'upload_csv' %}" class="text-pink-600 dark:text-pink-400 hover:text-pink-700 dark:hover:text-pink-300">
+                        Upload your first report
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Theme Toggle
+        (function() {
+            const htmlRoot = document.getElementById('html-root');
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            if (!htmlRoot || !themeToggle || !themeIcon) {
+                console.error('Theme toggle elements not found');
+                return;
+            }
+
+            // Load saved theme or system preference
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+            console.log('Initial theme:', initialTheme);
+            htmlRoot.classList.remove('light', 'dark');
+            htmlRoot.classList.add(initialTheme);
+            updateThemeIcon(initialTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlRoot.classList.contains('dark') ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                console.log('Toggling to theme:', newTheme);
+                htmlRoot.classList.remove('light', 'dark');
+                htmlRoot.classList.add(newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeIcon(newTheme);
+            });
+
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeIcon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`;
+                } else {
+                    themeIcon.innerHTML = `
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`;
+                }
+            }
+        })();
+
+        // Manual Report Generation
+        document.getElementById('generate-report-btn')?.addEventListener('click', async function() {
+            const statusElement = document.getElementById('status-message');
+            const button = this;
+            
+            statusElement.classList.remove('hidden', 'bg-red-100', 'dark:bg-red-900', 'bg-green-100', 'dark:bg-green-900', 'bg-yellow-100', 'dark:bg-yellow-900');
+            statusElement.classList.add('bg-yellow-100', 'dark:bg-yellow-900', 'text-yellow-800', 'dark:text-yellow-200', 'border', 'border-yellow-300', 'dark:border-yellow-700');
+            statusElement.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Generating report...
+                </div>`;
+            button.disabled = true;
+            
+            try {
+                const response = await fetch('{% url "manual_generate" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'queued') {
+                    statusElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900', 'text-yellow-800', 'dark:text-yellow-200', 'border-yellow-300', 'dark:border-yellow-700');
+                    statusElement.classList.add('bg-green-100', 'dark:bg-green-900', 'text-green-800', 'dark:text-green-200', 'border-green-300', 'dark:border-green-700');
+                    statusElement.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            ${data.message}. The report will be sent to your email shortly.
+                        </div>`;
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                } else {
+                    statusElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900', 'text-yellow-800', 'dark:text-yellow-200', 'border-yellow-300', 'dark:border-yellow-700');
+                    statusElement.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200', 'border-red-300', 'dark:border-red-700');
+                    statusElement.innerHTML = `
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Error: ${data.message}
+                        </div>`;
+                    button.disabled = false;
+                }
+            } catch (error) {
+                console.error('Report generation error:', error);
+                statusElement.classList.remove('bg-yellow-100', 'dark:bg-yellow-900', 'text-yellow-800', 'dark:text-yellow-200', 'border-yellow-300', 'dark:border-yellow-700');
+                statusElement.classList.add('bg-red-100', 'dark:bg-red-900', 'text-red-800', 'dark:text-red-200', 'border-red-300', 'dark:border-red-700');
+                statusElement.innerHTML = `
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Error: Could not connect to server
+                    </div>`;
+                button.disabled = false;
+            }
+        });
+
+        // Query Form Submission
+        document.getElementById('query-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const answerContainer = document.getElementById('answer-content');
+            const queryInput = this.querySelector('input[name="q"]');
+            
+            answerContainer.innerHTML = `
+                <div class="flex items-center text-gray-600 dark:text-gray-300">
+                    <svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Analyzing your reports...
+                </div>`;
+            
+            try {
+                const response = await fetch('{% url "query_report" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    answerContainer.innerHTML = `
+                        <div class="flex items-center text-red-600 dark:text-red-400">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Error: ${data.error}
+                        </div>`;
+                } else {
+                    answerContainer.innerHTML = `
+                        <div class="text-gray-800 dark:text-gray-200">
+                            <strong class="text-pink-600 dark:text-pink-400">Q:</strong> ${data.query}<br><br>
+                            <strong class="text-pink-600 dark:text-pink-400">A:</strong> ${data.answer}
+                        </div>`;
+                }
+            } catch (error) {
+                console.error('Query form error:', error);
+                answerContainer.innerHTML = `
+                    <div class="flex items-center text-red-600 dark:text-red-400">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        Error: Could not connect to server
+                    </div>`;
+            }
+        });
+    </script>
+</body>
+</html>
