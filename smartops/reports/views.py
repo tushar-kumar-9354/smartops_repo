@@ -78,9 +78,12 @@ def upload_csv(request):
 
             # AI Summary
             prompt = f"Summarize the following dataset stats in plain English:\n{stats}"
+            print(prompt)
             try:
                 response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
+                print(response)
                 report.summary = response['message']['content']
+                
             except Exception as e:
                 report.summary = f"Summary generation failed: {str(e)}"
             
@@ -269,3 +272,22 @@ def download_pdf(request, pk):
     doc.build(story)
 
     return FileResponse(open(pdf_path, "rb"), as_attachment=True, filename=os.path.basename(pdf_path))
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from .qa import answer_query
+
+@require_POST
+@csrf_exempt
+def ask_question(request, report_id):
+    try:
+        query = request.POST.get('query', '')
+        if not query:
+            return JsonResponse({'error': 'Query is required'}, status=400)
+        
+        # Process the query using your QA engine
+        answer = answer_query(query)
+        
+        return JsonResponse({'answer': answer})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

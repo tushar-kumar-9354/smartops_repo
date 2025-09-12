@@ -7,11 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Ultimate professional and unique design */
+        /* Your existing CSS styles */
         :root {
             --pink-50: #fff1f8;
             --pink-100: #ffe4f1;
-            --pink-200: #ffc1e0;
+            --pink-200: #553f4a;
             --pink-300: #ff99cc;
             --pink-400: #ff66b2;
             --pink-500: #ff3399;
@@ -20,7 +20,7 @@
             --white: #ffffff;
             --gray-50: #fafafa;
             --gray-100: #f4f4f5;
-            --gray-200: #e4e4e7;
+            --gray-200: #1a1a1b;
             --gray-300: #d4d4d8;
             --gray-400: #a1a1aa;
             --gray-500: #71717a;
@@ -30,7 +30,7 @@
             --gray-900: #18181b;
         }
         .dark {
-            --pink-50: #1c0b2e; /* Deep cosmic purple-grey */
+            --pink-50: #1c0b2e;
             --pink-100: #2b1347;
             --pink-200: #3a1a60;
             --pink-300: #492179;
@@ -38,8 +38,8 @@
             --pink-500: #672fab;
             --pink-600: #7636c4;
             --pink-700: #853edd;
-            --white: #18181b; /* Dark slate for cards */
-            --gray-50: #e4e4e7; /* Light grey for text */
+            --white: #18181b;
+            --gray-50: #e4e4e7;
             --gray-100: #d4d4d8;
             --gray-200: #a1a1aa;
             --gray-300: #71717a;
@@ -47,7 +47,7 @@
             --gray-500: #3f3f46;
             --gray-600: #27272a;
             --gray-700: #18181b;
-            --gray-800: #e4e4e7; /* Light grey for text */
+            --gray-800: #e4e4e7;
             --gray-900: #f4f4f5;
         }
         body {
@@ -128,14 +128,14 @@
             transform: scale(1.2);
         }
         .btn-success {
-            background: #10b981; /* Emerald green for CSV */
+            background: #10b981;
             color: var(--white);
         }
         .btn-success:hover {
             background: #059669;
         }
         .btn-primary {
-            background: #3b82f6; /* Blue for PDF */
+            background: #3b82f6;
             color: var(--white);
         }
         .btn-primary:hover {
@@ -181,7 +181,7 @@
         {% if report.chart_path %}
             <div class="mb-12">
                 <div class="flex items-center mb-6">
-                    <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v12a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2V9a2 2 0 00-2-2h-2a2 2 0 00-2 2v10" /></svg>
                     <h2 class="text-3xl font-semibold text-pink-500 dark:text-pink-400">Chart</h2>
                 </div>
                 <div class="card p-6 rounded-2xl border border-pink-200 dark:border-pink-300">
@@ -262,27 +262,25 @@
                 <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                 <h2 class="text-3xl font-semibold text-pink-500 dark:text-pink-400">Ask a Question About This Report</h2>
             </div>
-            <div class="flex flex-col space-y-6">
-                <input type="text" name="query" placeholder="Type your question here..." required class="w-full p-5 border border-pink-300 dark:border-pink-300 rounded-xl bg-gray-50 dark:bg-gray-600 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:focus:ring-pink-400 transition-all shadow-lg">
-                <button type="button" class="btn px-8 py-4 bg-pink-500 dark:bg-pink-600 text-white rounded-xl hover:bg-pink-600 dark:hover:bg-pink-500 transition-all font-semibold shadow-lg">Submit Question</button>
-            </div>
-        </div>
-
-        {% if answer %}
-            <div>
+            <form id="question-form" class="flex flex-col space-y-6">
+                {% csrf_token %}
+                <input type="text" id="question-input" name="query" placeholder="Type your question here..." required class="w-full p-5 border border-pink-300 dark:border-pink-300 rounded-xl bg-gray-50 dark:bg-gray-600 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-4 focus:ring-pink-300 dark:focus:ring-pink-400 transition-all shadow-lg">
+                <button type="submit" class="btn px-8 py-4 bg-pink-500 dark:bg-pink-600 text-white rounded-xl hover:bg-pink-600 dark:hover:bg-pink-500 transition-all font-semibold shadow-lg">Submit Question</button>
+            </form>
+            <div id="answer-container" class="mt-6 hidden">
                 <div class="flex items-center mb-6">
                     <svg class="section-icon text-pink-500 dark:text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     <h3 class="text-2xl font-semibold text-pink-500 dark:text-pink-400">Answer</h3>
                 </div>
-                <div class="card p-6 rounded-2xl border border-pink-200 dark:border-pink-300">
-                    <p class="text-gray-600 dark:text-gray-200 leading-relaxed">{{ answer|linebreaksbr }}</p>
+                <div class="card p-6 rounded-2xl border border-pink-400 dark:border-pink-300 text-black">
+                    <p id="answer-text" class="text-gray-600 dark:text-gray-800 leading-relaxed"></p>
                 </div>
             </div>
-        {% endif %}
+        </div>
     </div>
 
     <script>
-        // Enhanced theme toggle with smooth transitions
+        // Theme Toggle
         const toggleButton = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const html = document.documentElement;
@@ -301,6 +299,57 @@
             } else {
                 localStorage.setItem('theme', 'light');
                 themeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+            }
+        });
+
+        // Question Form Submission
+        document.getElementById('question-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const questionInput = document.getElementById('question-input');
+            const answerContainer = document.getElementById('answer-container');
+            const answerText = document.getElementById('answer-text');
+            const submitButton = this.querySelector('button[type="submit"]');
+            
+            const question = questionInput.value.trim();
+            if (!question) return;
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
+            answerContainer.classList.add('hidden');
+            
+            try {
+                // Send AJAX request to the ask_question endpoint
+                const response = await fetch('{% url "ask_question" report.id %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: new URLSearchParams({
+                        'query': question
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.answer) {
+                    answerText.textContent = data.answer;
+                    answerContainer.classList.remove('hidden');
+                } else if (data.error) {
+                    answerText.textContent = 'Error: ' + data.error;
+                    answerContainer.classList.remove('hidden');
+                } else {
+                    alert('Error: Could not get an answer');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                answerText.textContent = 'Error: Could not connect to server';
+                answerContainer.classList.remove('hidden');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit Question';
             }
         });
     </script>

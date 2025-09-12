@@ -9,4 +9,6 @@ urlpatterns = [
     path("report/<int:pk>/csv/", views.download_csv, name="download_csv"),
     path("report/<int:pk>/pdf/", views.download_pdf, name="download_pdf"),
     path("query/", views.query_report, name="query_report"),
+    path("report/<int:report_id>/ask/", views.ask_question, name="ask_question"),
+    
 ]
