@@ -1,4 +1,4 @@
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.schema import Document
 import ollama
@@ -25,6 +25,7 @@ class ReportQAEngine:
         self.embeddings = HuggingFaceEmbeddings(
             model_name="sentence-transformers/all-MiniLM-L6-v2"
         )
+        print(self.embeddings.model_name)
         self.vector_store = None
         self.csv_vector_store = None
         self.report_metadata = {}
@@ -494,7 +495,7 @@ class ReportQAEngine:
         
         try:
             response = ollama.chat(
-                model="mistral",
+                model="qwen:0.5b",
                 messages=[{"role": "user", "content": prompt}],
                 options={"temperature": 0.1}
             )
@@ -634,7 +635,7 @@ class ReportQAEngine:
             
             try:
                 response = ollama.chat(
-                    model="mistral",
+                    model="qwen:0.5b",
                     messages=[{"role": "user", "content": prompt}],
                     options={
                         "temperature": 0.2,

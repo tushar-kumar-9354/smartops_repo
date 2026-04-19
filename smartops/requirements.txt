@@ -1,0 +1,48 @@
+# SmartOps - Requirements
+
+# Django Framework
+Django
+djangorestframework
+
+# Database
+psycopg2-binary
+
+# Background Tasks (Celery + Redis)
+celery
+redis
+django-celery-beat
+django-celery-results
+
+# Data Processing
+pandas
+numpy
+
+# Visualization
+matplotlib
+
+# AI / NLP
+ollama
+langchain
+langchain-huggingface
+langchain-community
+faiss-cpu
+sentence-transformers
+
+# Google Integrations
+gspread
+google-auth
+google-api-python-client
+
+# Jira Integration
+jira
+
+# PDF Generation
+reportlab
+
+# Utilities
+python-dateutil
+Pillow
+
+# Development / Testing
+pytest
+pytest-django

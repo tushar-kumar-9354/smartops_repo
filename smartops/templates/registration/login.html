@@ -1,0 +1,39 @@
+<!-- templates/registration/login.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - SmartOps</title>
+    <style>
+        /* ... use the CSS from previous answer ... */
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>🔐 SmartOps Login</h2>
+        
+        {% if form.errors %}
+        <div class="error">
+            Invalid username or password.
+        </div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_username">Username</label>
+                <input type="text" name="username" id="id_username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" required>
+            </div>
+            
+            <button type="submit">Login</button>
+            
+            <input type="hidden" name="next" value="{{ next|default:'/reports/dashboard/' }}">
+        </form>
+    </div>
+</body>
+</html>

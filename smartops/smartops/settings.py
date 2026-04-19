@@ -64,8 +64,8 @@ ROOT_URLCONF = 'smartops.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # This should have your templates directory
+        'APP_DIRS': True,  # This allows looking in app directories
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -154,3 +154,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER='jangratushar348@gmail.com'   # replace
 EMAIL_HOST_PASSWORD='xbay pqvn puve kbiw'
 
+# smartops/settings.py - Add these settings at the end
+
+# Login settings
+LOGIN_URL = '/accounts/login/'  # This is the default, but explicit is better
+LOGIN_REDIRECT_URL = '/reports/dashboard/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

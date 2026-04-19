@@ -80,7 +80,7 @@ def upload_csv(request):
             prompt = f"Summarize the following dataset stats in plain English:\n{stats}"
             print(prompt)
             try:
-                response = ollama.chat(model="mistral", messages=[{"role": "user", "content": prompt}])
+                response = ollama.chat(model="qwen:0.5b", messages=[{"role": "user", "content": prompt}])
                 print(response)
                 report.summary = response['message']['content']
                 
